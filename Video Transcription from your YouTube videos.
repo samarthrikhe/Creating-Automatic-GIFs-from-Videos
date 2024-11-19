@@ -1,0 +1,11 @@
+// Video//
+ffmpeg -i input_video.mp4 -q:a 0 -map a audio.mp3
+
+
+
+// Audio//
+import whisper
+
+model = whisper.load_model("base")
+result = model.transcribe("audio.mp3")
+transcript = result["text"]
