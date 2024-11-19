@@ -1,0 +1,16 @@
+import requests
+
+def upload_to_giphy(api_key, gif_path, tags):
+    url = "https://upload.giphy.com/v1/gifs"
+    with open(gif_path, "rb") as gif_file:
+        files = {"file": gif_file}
+        payload = {"api_key": api_key, "tags": tags}
+        response = requests.post(url, files=files, data=payload)
+        if response.status_code == 200:
+            print(f"GIF uploaded: {response.json()['data']['id']}")
+        else:
+            print("Failed to upload GIF:", response.json())
+
+# Example upload
+api_key = "YOUR_GIPHY_API_KEY"
+upload_to_giphy(api_key, "gifs/good_vibes_0.gif", tags="good vibes, positivity")
