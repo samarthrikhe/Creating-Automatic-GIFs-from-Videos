@@ -1,0 +1,7 @@
+Python Libraries:
+whisper for transcription.
+moviepy or FFmpeg for video processing.
+pytube for YouTube video downloading.
+TextBlob or NLTK for sentiment and text analysis.
+FFmpeg: Command-line tool for video editing.
+Giphy API: For direct GIF uploads.
