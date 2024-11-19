@@ -1,0 +1,24 @@
+
+
+//Batch Processing: Add a loop to process all videos in a folder://
+
+import glob
+
+video_files = glob.glob("my_videos/*.mp4")  # All videos in "my_videos" folder
+for video in video_files:
+    transcription = transcribe_video(video)
+    segments = extract_phrases(transcription, keywords)
+    save_transcript_as_srt(transcription)
+    create_gif(video, segments)
+
+
+//Advanced Caption Styling: Customize the caption appearance:
+
+Modify the force_style in the FFmpeg subtitle command://
+
+-vf "subtitles=transcription.srt:force_style='FontSize=30,PrimaryColour=&HFF00FF&'"
+
+//Improve GIF Quality: Experiment with FFmpeg settings for higher quality://
+
+-vf "fps=10,scale=480:-1:flags=lanczos" -c:v gif -y output.gif
+
