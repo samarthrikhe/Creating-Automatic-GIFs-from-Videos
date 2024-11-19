@@ -1,0 +1,27 @@
+import subprocess
+
+def create_gif(input_video, segments, output_folder="gifs"):
+    import os
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    for i, segment in enumerate(segments):
+        start = segment['start']
+        end = segment['end']
+        keyword = segment['keyword']
+        output_file = f"{output_folder}/{keyword.replace(' ', '_')}_{i}.gif"
+        
+        # FFmpeg command for GIF generation
+        command = [
+            "ffmpeg",
+            "-ss", str(start),
+            "-to", str(end),
+            "-i", input_video,
+            "-vf", f"subtitles=transcription.srt:force_style='FontSize=24,PrimaryColour=&HFFFFFF&'",
+            "-y", output_file
+        ]
+        subprocess.run(command)
+        print(f"Created GIF: {output_file}")
+
+# Generate GIFs
+create_gif(video_path, segments)
