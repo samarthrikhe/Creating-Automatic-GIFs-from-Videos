@@ -1,0 +1,19 @@
+import whisper
+
+# Load Whisper model (base, small, medium, or large)
+model = whisper.load_model("base")
+
+def transcribe_video(video_path):
+    result = model.transcribe(video_path)
+    return result
+
+# Transcribe the video
+video_path = "input_video.mp4"
+transcription = transcribe_video(video_path)
+
+# Save transcription with timestamps
+import json
+with open("transcription.json", "w") as f:
+    json.dump(transcription, f, indent=4)
+    
+print("Transcription completed and saved!")
