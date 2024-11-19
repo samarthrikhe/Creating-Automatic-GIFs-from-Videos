@@ -1,0 +1,110 @@
+import os
+import whisper
+import json
+import subprocess
+import requests
+
+# Step 1: Transcription
+def transcribe_video(video_path):
+    print("Transcribing video...")
+    model = whisper.load_model("base")  # Use "small", "medium", or "large" for better accuracy
+    result = model.transcribe(video_path)
+    with open("transcription.json", "w") as f:
+        json.dump(result, f, indent=4)
+    print("Transcription saved!")
+    return result
+
+# Step 2: Extract Relevant Segments
+def extract_phrases(transcription, keywords):
+    print("Extracting GIF-worthy segments...")
+    segments = []
+    for segment in transcription['segments']:
+        text = segment['text'].lower()
+        for keyword in keywords:
+            if keyword.lower() in text:
+                segments.append({
+                    "start": segment['start'],
+                    "end": segment['end'],
+                    "keyword": keyword,
+                    "text": segment['text']
+                })
+    print(f"Found {len(segments)} segments.")
+    return segments
+
+# Step 3: Create GIFs with FFmpeg
+def create_gif(input_video, segments, output_folder="gifs"):
+    print("Creating GIFs...")
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for i, segment in enumerate(segments):
+        start = segment['start']
+        end = segment['end']
+        keyword = segment['keyword']
+        output_file = f"{output_folder}/{keyword.replace(' ', '_')}_{i}.gif"
+        # FFmpeg command to create GIF
+        command = [
+            "ffmpeg",
+            "-ss", str(start),
+            "-to", str(end),
+            "-i", input_video,
+            "-vf", f"subtitles=transcription.srt:force_style='FontSize=24,PrimaryColour=&HFFFFFF&'",
+            "-y", output_file
+        ]
+        subprocess.run(command)
+        print(f"Created GIF: {output_file}")
+
+# Step 4: Save Transcript as Subtitles
+def save_transcript_as_srt(transcription, output_file="transcription.srt"):
+    print("Creating subtitle file...")
+    with open(output_file, "w") as f:
+        for i, segment in enumerate(transcription['segments']):
+            start_time = format_time(segment['start'])
+            end_time = format_time(segment['end'])
+            text = segment['text']
+            f.write(f"{i + 1}\n{start_time} --> {end_time}\n{text}\n\n")
+    print("Subtitle file created!")
+
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = seconds % 60
+    milliseconds = int((seconds - int(seconds)) * 1000)
+    return f"{hours:02}:{minutes:02}:{int(seconds):02},{milliseconds:03}"
+
+# Step 5: Upload GIFs to Giphy
+def upload_to_giphy(api_key, gif_path, tags):
+    print(f"Uploading {gif_path} to Giphy...")
+    url = "https://upload.giphy.com/v1/gifs"
+    with open(gif_path, "rb") as gif_file:
+        files = {"file": gif_file}
+        payload = {"api_key": api_key, "tags": tags}
+        response = requests.post(url, files=files, data=payload)
+        if response.status_code == 200:
+            print(f"GIF uploaded: {response.json()['data']['id']}")
+        else:
+            print("Failed to upload GIF:", response.json())
+
+# Main Function to Run the Process
+if __name__ == "__main__":
+    # Input settings
+    video_path = "input_video.mp4"  # Replace with your video path
+    keywords = ["i love you", "good vibes", "stay based", "happy monday", "happy tuesday", "good new year's eve"]
+    giphy_api_key = "YOUR_GIPHY_API_KEY"  # Replace with your Giphy API key
+
+    # Transcribe video
+    transcription = transcribe_video(video_path)
+    
+    # Extract segments
+    segments = extract_phrases(transcription, keywords)
+    
+    # Save subtitles
+    save_transcript_as_srt(transcription)
+
+    # Generate GIFs
+    create_gif(video_path, segments)
+    
+    # Optionally, upload GIFs to Giphy
+    for i, segment in enumerate(segments):
+        gif_path = f"gifs/{segment['keyword'].replace(' ', '_')}_{i}.gif"
+        upload_to_giphy(giphy_api_key, gif_path, tags=segment['keyword'])
