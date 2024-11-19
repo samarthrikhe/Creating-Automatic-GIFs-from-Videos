@@ -1,0 +1,28 @@
+Input Video
+
+Upload your main video or videos.
+Accept files directly or connect to YouTube to process all your content.
+Transcription
+
+Use OpenAI's Whisper (or similar ASR tools) to transcribe the video into text.
+Include timestamped sections for precise cutting.
+Thematic GIF Segmentation
+
+Analyze the transcript to identify sections based on:
+Keywords or phrases (e.g., "I love you," "Good vibes").
+Sentence lengths or pauses in speech.
+Emotional tone, which could be detected using sentiment analysis on the text.
+Captioning
+
+Automatically overlay text onto GIFs with styling options (e.g., bold, color contrast for accessibility).
+Video Cutting
+
+Use FFmpeg to extract timestamped segments as GIFs.
+Optionally, refine cuts by analyzing audio/video to avoid abrupt starts or ends.
+Processing for Output
+
+Compress for optimized GIF sizes without losing quality.
+Save in a repository or upload to platforms like Giphy.
+Pre-defined Templates
+
+Build a library of recurring phrases with default styles to apply automatically.
